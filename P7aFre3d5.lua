@@ -1174,7 +1174,7 @@ local function getTargetPlayer(value)
     return nil
 end
 
-local w = library:CreateWindow("Quiz script")
+local w = library:CreateWindow("Query script")
 
 local function createMainGUI()
     local b = w:CreateFolder("Main controls")
@@ -1195,9 +1195,9 @@ local function createMainGUI()
         selectedCategory = mob
     end)
 
-    b:Button("Start quiz", function()
+    b:Button("Start Query", function()
         if categories[selectedCategory] then
-            startQuiz(selectedCategory)
+            startQuery(selectedCategory)
         end
     end)
 
@@ -1213,9 +1213,9 @@ local function createMainGUI()
     end
 
     b:Button("Stop", function()
-        quizCooldown, quizRunning, currentQuestion, questionAnsweredBy, awaitingAnswer = true, false, nil, nil, false
+        QueryCooldown, QueryRunning, currentQuestion, questionAnsweredBy, awaitingAnswer = true, false, nil, nil, false
         Chat("🛑 | Question Stopped.")
-        task.delay(5, function() quizCooldown = false end)
+        task.delay(5, function() QueryCooldown = false end)
     end)
 
     b:Button("Send rules", function()
@@ -1361,16 +1361,16 @@ local function createMainGUI()
 
     local d = w:CreateFolder("Settings")
 
-    d:Dropdown("Mode", {"Quiz", "Kahoot"}, true, function(mob)
+    d:Dropdown("Mode", {"Query", "Multiple"}, true, function(mob)
         mode = mob:lower()
-        if mob == "Quiz" then
+        if mob == "Query" then
             Chat("❓ | Query mode enabled - [Made by TXTm tag 1507/MCAIJ]")
-        elseif mob == "Kahoot" then
+        elseif mob == "Multiple" then
             Chat("🅺❕ | Multiple mode enabled - [Made by TXTm tag 1507/MCAIJ]")
         end
     end)
 
-    d:Toggle("Autoplay quizzes automatically", function(value)
+    d:Toggle("Autoplay Queryzes automatically", function(value)
         settings.autoplay = value
     end)
 
@@ -1392,8 +1392,8 @@ local function createMainGUI()
         end
     end)
 
-    d:Toggle("Disable automatic sending of server LB at the end of quiz", function(value)
-        settings.automaticServerQuizLeaderboard = not value
+    d:Toggle("Disable automatic sending of server LB at the end of Query", function(value)
+        settings.automaticServerQueryLeaderboard = not value
     end)
 
     d:Toggle("Do not repeat tagged messages", function(value)
