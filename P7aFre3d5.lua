@@ -987,7 +987,7 @@ local function sendLeaderboard(type, message)
     end
     task.wait(1.5)
     if array[1] and array[1][2] > 0 then
-        Chat(message..type.." Skibidi Sigmas |🏆")
+        Chat(message..type.."🏆| Skibidi Sigmas |🏆")
         local username = array[1][1]
         local displayName = getDisplayNameByUsername(username)
         local points = tostring(roundNumber(array[1][2], 1))
