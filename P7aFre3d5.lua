@@ -1159,9 +1159,6 @@ local library = loadstring(game:HttpGet('https://raw.githubusercontent.com/blood
 local correctKey = "TXTm"
 local authenticated = false
 
-local blockedPlayers = {}
-local whiteListedplayers = {}
-
 local function getTargetPlayer(value)
     if value:lower() == "all" then
         return "ALL"
