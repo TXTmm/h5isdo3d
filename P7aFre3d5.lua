@@ -1062,7 +1062,7 @@ local function startQuiz(category)
        UpdateSignText("")
     end)
     if settings.automaticLeaderboards and settings.automaticServerQuizLeaderboard then
-        sendLeaderboard("Server", "🏆 | Qustions ended. ")
+        sendLeaderboard("Server", "🏆 | Questions ended. ")
         task.wait(2)
     else
         SendMessageWhenReady("🏁 | Questions ended")
@@ -1223,7 +1223,7 @@ local function createMainGUI()
     end)
 
     b:Button("Send server LB", function()
-        sendLeaderboard("Server", "Skibidi leaderboard: ")
+        sendLeaderboard("Server", "")
     end)
 
     b:Button("Reset all points", function()
