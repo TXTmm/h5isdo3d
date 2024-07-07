@@ -25,7 +25,7 @@ local settings = {
     userCooldown = 5,
     sendLeaderBoardAfterQuestions = 5,
     automaticLeaderboards = true,
-    automaticServerQueryLeaderboard = true,
+    automaticServerqueryLeaderboard = true,
     signStatus = true,
     romanNumbers = true,
     autoplay = false,
@@ -154,9 +154,9 @@ if placeId == 5118029260 then -- GRP cuts down messages at 100 characters
     maxCharactersInMessage = 100
 end
 
-local endMessage = "Query ended"
+local endMessage = "query ended"
 if localPlayer.UserId == 2005147350 then
-    endMessage = "Query ended"
+    endMessage = "query ended"
 end
 
 local function CalculateReadTime(text: string): number
@@ -279,7 +279,7 @@ function pointManager.NewAccount(player)
     userPoints[player.Name] = {}
     local playerPoints = userPoints[player.Name]
     playerPoints.GlobalPoints = 0
-    playerPoints.CurrentQueryPoints = 0
+    playerPoints.CurrentqueryPoints = 0
     setmetatable(playerPoints, pointManager)
     return playerPoints
 end
@@ -298,26 +298,26 @@ function pointManager.AddPoints(player, points: number, type: string)
     if type == "All" then
         playerAccount.GlobalPoints += points
         if queryRunning then
-            playerAccount.CurrentQueryPoints += points
+            playerAccount.CurrentqueryPoints += points
         end
     elseif type == "Global" then
         playerAccount.GlobalPoints += points
-    elseif type == "CurrentQuery" then
-        playerAccount.CurrentQueryPoints += points
+    elseif type == "Currentquery" then
+        playerAccount.CurrentqueryPoints += points
     end
 end
 
-function pointManager.ClearQueryPointsForPlayer(player)
+function pointManager.ClearqueryPointsForPlayer(player)
     local playerAccount = userPoints[player.Name]
     if not playerAccount then
         return
     end
-    playerAccount.CurrentQueryPoints = 0
+    playerAccount.CurrentqueryPoints = 0
 end
 
-function pointManager.ClearQueryPoints()
+function pointManager.ClearqueryPoints()
     for _, v in pairs(userPoints) do
-        v.CurrentQueryPoints = 0
+        v.CurrentqueryPoints = 0
     end
 end
 
@@ -344,7 +344,7 @@ end
 function pointManager.ResetAllPoints()
     for _, v in pairs(userPoints) do
         v.GlobalPoints = 0
-        v.CurrentQueryPoints = 0
+        v.CurrentqueryPoints = 0
     end
 end
 -------
@@ -953,7 +953,7 @@ table.sort(categoryTable)
 
 local function sendCategories()
     if not queryRunning then
-        Chat("❓ | Query/Multiple Mode categories:")
+        Chat("❓ | Query/Multiple mode categories:")
         task.wait(3)
         SplitIntoMessages(categoryTable, ", ", 5)
     end
@@ -981,7 +981,7 @@ local function sendLeaderboard(type, message)
         message = ""
     end
     if type == "Current query" then
-        array = sortUserPoints("CurrentQueryPoints")
+        array = sortUserPoints("CurrentqueryPoints")
     else
         array = sortUserPoints("GlobalPoints")
     end
@@ -1024,12 +1024,12 @@ local function choseAutoplayCategory()
     end
 end
 
-local function startQuery(category)
+local function startquery(category)
     if queryRunning or queryCooldown then
         return
     end
     queryRunning = true
-    pointManager.ClearQueryPoints()
+    pointManager.ClearqueryPoints()
     Chat('🎮 | Initiating "'..category..'" trivia...')
     UpdateSignText(category)
     task.wait(3)
@@ -1048,20 +1048,20 @@ local function startQuery(category)
         if not queryRunning then
             return
         end
-        if loopIterations == settings.sendLeaderBoardAfterQuestions and settings.automaticLeaderboards and settings.automaticCurrentQueryLeaderboard then
+        if loopIterations == settings.sendLeaderBoardAfterQuestions and settings.automaticLeaderboards and settings.automaticCurrentqueryLeaderboard then
             sendLeaderboard("Current query", "📜 | ")
             loopIterations = 0
         end
     end
     task.wait(3)
-    if loopIterations ~= 0 and settings.automaticLeaderboards and settings.automaticCurrentQueryLeaderboard then
+    if loopIterations ~= 0 and settings.automaticLeaderboards and settings.automaticCurrentqueryLeaderboard then
         sendLeaderboard("Current query", "📜 | ")
     end
     UpdateSignText(endMessage)
     task.delay(15, function()
        UpdateSignText("")
     end)
-    if settings.automaticLeaderboards and settings.automaticServerQueryLeaderboard then
+    if settings.automaticLeaderboards and settings.automaticServerqueryLeaderboard then
         sendLeaderboard("Server", "🏆 | Qustions ended. ")
         task.wait(2)
     else
@@ -1078,7 +1078,7 @@ local function startQuery(category)
             table.clear(autoplayChosenCategories)
         end
         task.wait(5)
-        startQuery(chosenCategory)
+        startquery(chosenCategory)
     end
 end
 
@@ -1156,6 +1156,12 @@ end
 ---------- UI ----------
 local library = loadstring(game:HttpGet('https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3'))()
 
+local correctKey = "TXTm"
+local authenticated = false
+
+local blockedPlayers = {}
+local whiteListedplayers = {}
+
 local function getTargetPlayer(value)
     if value:lower() == "all" then
         return "ALL"
@@ -1168,7 +1174,7 @@ local function getTargetPlayer(value)
     return nil
 end
 
-local w = library:CreateWindow("Query/Multiple script")
+local w = library:CreateWindow("Quiz script")
 
 local function createMainGUI()
     local b = w:CreateFolder("Main controls")
@@ -1189,9 +1195,9 @@ local function createMainGUI()
         selectedCategory = mob
     end)
 
-    b:Button("Start query", function()
+    b:Button("Start quiz", function()
         if categories[selectedCategory] then
-            startQuery(selectedCategory)
+            startQuiz(selectedCategory)
         end
     end)
 
@@ -1207,9 +1213,9 @@ local function createMainGUI()
     end
 
     b:Button("Stop", function()
-        queryCooldown, queryRunning, currentQuestion, questionAnsweredBy, awaitingAnswer = true, false, nil, nil, false
+        quizCooldown, quizRunning, currentQuestion, questionAnsweredBy, awaitingAnswer = true, false, nil, nil, false
         Chat("🛑 | Question Stopped.")
-        task.delay(5, function() queryCooldown = false end)
+        task.delay(5, function() quizCooldown = false end)
     end)
 
     b:Button("Send rules", function()
@@ -1355,16 +1361,16 @@ local function createMainGUI()
 
     local d = w:CreateFolder("Settings")
 
-    d:Dropdown("Mode", {"Query", "Multiple"}, true, function(mob)
+    d:Dropdown("Mode", {"Quiz", "Kahoot"}, true, function(mob)
         mode = mob:lower()
-        if mob == "Query" then
+        if mob == "Quiz" then
             Chat("❓ | Query mode enabled - [Made by TXTm tag 1507/MCAIJ]")
-        elseif mob == "Multiple" then
+        elseif mob == "Kahoot" then
             Chat("🅺❕ | Multiple mode enabled - [Made by TXTm tag 1507/MCAIJ]")
         end
     end)
 
-    d:Toggle("Autoplay queryzes automatically", function(value)
+    d:Toggle("Autoplay quizzes automatically", function(value)
         settings.autoplay = value
     end)
 
@@ -1386,8 +1392,8 @@ local function createMainGUI()
         end
     end)
 
-    d:Toggle("Disable automatic sending of server LB at the end of query", function(value)
-        settings.automaticServerQueryLeaderboard = not value
+    d:Toggle("Disable automatic sending of server LB at the end of quiz", function(value)
+        settings.automaticServerQuizLeaderboard = not value
     end)
 
     d:Toggle("Do not repeat tagged messages", function(value)
@@ -1418,3 +1424,15 @@ local function createMainGUI()
         end
     end)
     e:DestroyGui()
+end
+
+local k = w:CreateFolder("Key System")
+
+k:Box("Enter Key", "string", function(value)
+    if value == correctKey then
+        authenticated = true
+        createMainGUI()
+    else
+        Chat("❌ | Incorrect key.")
+    end
+end)
