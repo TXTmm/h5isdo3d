@@ -1361,9 +1361,9 @@ local function createMainGUI()
     d:Dropdown("Mode", {"Quiz", "Kahoot"}, true, function(mob)
         mode = mob:lower()
         if mob == "Quiz" then
-            Chat("❓ | Query mode enabled - [Made by TXTm tag 1507/MCAIJ]")
+            Chat("❓ | Query mode enabled - [Made by TXTm tag 1507 (Skidded)]")
         elseif mob == "Kahoot" then
-            Chat("🅺❕ | Multiple mode enabled - [Made by TXTm tag 1507/MCAIJ]")
+            Chat("🅺❕ | Multiple mode enabled - [Made by TXTm tag 1507 (Skidded)]")
         end
     end)
 
