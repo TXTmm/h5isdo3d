@@ -222,7 +222,7 @@ function question:Ask()
         if questionAnsweredBy or not quizRunning then
             return
         end
-        SendMessageWhenReady(letters[i]..")"..v, true) -- 1 = A) 2 = B) 3 = C) etc.
+        SendMessageWhenReady(letters[i]..") "..v, true) -- 1 = A) 2 = B) 3 = C) etc.
         answerOptionsSaid = i
     end
 end
@@ -431,7 +431,7 @@ local function startChatListening(message: string, player: Player)
             end
         elseif mode == "quiz" then
             if awaitingAnswer then
-                requestSendMessage("😹❌ | "..player.DisplayName.." wrong answer. Try again in "..tostring(settings.userCooldown).." seconds")
+                requestSendMessage("😹✖ | "..player.DisplayName.." answered WRONG. Retry in "..tostring(settings.userCooldown).." seconds")
             end
             table.insert(userCooldowns, player.Name)
             task.delay(settings.userCooldown, function()
@@ -466,7 +466,7 @@ local function processMessage(player: Player, message: string)
             SendMessageWhenReady("🔄 | Resending previous filtered message...")
             task.wait(6)
         else
-            SendMessageWhenReady("Attempting to get around chat filter")
+            SendMessageWhenReady("🛠️ | Attempting to get around chat filter")
             task.wait(6)
             filtersInARow = 0
         end
@@ -532,7 +532,7 @@ local function awaitAnswer(targetQuestion)
         end
         task.wait(settings.questionTimeout)
         UpdateSignText(targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex])
-        SendMessageWhenReady("⏱ | Time's up! Correct answer was: "..targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex], true)
+        SendMessageWhenReady("⏱ | Times up. Correct answer was: "..targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex], true)
         timeIsOut = true
         currentQuestion = nil
         questionAnsweredBy = nil
@@ -571,7 +571,7 @@ local function awaitAnswer(targetQuestion)
         task.delay(0.5, function() -- delayed to give time to the signtimecoroutine to stop chanong sign text
             UpdateSignText(targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex])
         end)
-        SendMessageWhenReady("🙀✔ | "..questionAnsweredBy.DisplayName.." answered correctly. Answer was: "..targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex], true, "Answer was: "..targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex])
+        SendMessageWhenReady("🙀✔ | "..questionAnsweredBy.DisplayName.." answered RIGHT!. Answer was: "..targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex], true, "Answer was: "..targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex])
         questionAnsweredBy = nil
         awaitingAnswer = false
         table.clear(userCooldowns)
@@ -945,6 +945,13 @@ geographyExtreme:Add("What country in Asia is located in the south?", {"Sri Lank
 geographyExtreme:Add("What country in Asia is located in the north?", {"Russia", "China", "Mongolia", "North Korea"})
 geographyExtreme:Add("What country in Asia is located in the east?", {"Japan", "Philippines", "South Korea", "Taiwan"})
 
+local pokemon = categoryManager.New("Pokemon")  
+pokemon:Add("What is the starting Pokémon of the Kanto region?", {"Bulbasaur", "Charmander", "Squirtle", "Pikachu"})  
+pokemon:Add("Which Pokémon is known for its ability to evolve into many different species?", {"Eevee", "Pikachu", "Charizard", "Squirtle"})  
+pokemon:Add("What is the name of the Pokémon that is said to have the power of a hundred moves?", {"Mew", "Mewtwo", "Articuno", "Zapdos"})  
+pokemon:Add("Which Pokémon is known for its incredible speed and is often considered the fastest Pokémon?", {"Deoxys", "Giratina", "Darkrai", "Arceus"}, 2)  
+pokemon:Add("What is the name of the Pokémon that is said to have the power to control time?", {"Dialga", "Palkia", "Giratina", "Xerneas"})  
+
 local categoryTable = {}
 for k, v in pairs(categories) do
     table.insert(categoryTable, k)
@@ -987,7 +994,7 @@ local function sendLeaderboard(type, message)
     end
     task.wait(1.5)
     if array[1] and array[1][2] > 0 then
-        Chat(message..type.."Skibidi Sigmas |🏆")
+        Chat(message..type.." Skibidi Sigmas |🏆")
         local username = array[1][1]
         local displayName = getDisplayNameByUsername(username)
         local points = tostring(roundNumber(array[1][2], 1))
@@ -1030,7 +1037,7 @@ local function startQuiz(category)
     end
     quizRunning = true
     pointManager.ClearQuizPoints()
-    Chat('🎮 | Initiating "'..category..'" trivia...')
+    Chat('🎮 | "'..category..'" quiz has been chosen. Initiating queries...')
     UpdateSignText(category)
     task.wait(3)
     local loopIterations = 0
@@ -1086,11 +1093,11 @@ local quizModeRules = {"There is only one winner for each questions.", "If you a
 local kahootModeRules = {"There are multiple winners for each question.", "You can only submit ONE answer per round.", "The first answer you submit is your final answer, and it can not be changed.", "You have "..tostring(settings.questionTimeout).." seconds to answer the question after all the options have been said.", "Every second after all the options have been said, the points you will gain for answering correctly decrease.", "In other words, the quicker you answer, the more points you will gain.", "Additionally, the first person who submits a correct answer gets 1.5x points."}
 local function sendRules()
     if mode == "quiz" then
-        Chat("📜 | Query mode rules:")
+        Chat("📢 | Query mode rules:")
         task.wait(2)
         SplitIntoMessages(quizModeRules, " ")
     elseif mode == "kahoot" then
-        Chat("📜 | Multiple mode rules:")
+        Chat("📢 | Multiple mode rules:")
         task.wait(2)
         SplitIntoMessages(kahootModeRules, " ")
     end
@@ -1361,9 +1368,9 @@ local function createMainGUI()
     d:Dropdown("Mode", {"Quiz", "Kahoot"}, true, function(mob)
         mode = mob:lower()
         if mob == "Quiz" then
-            Chat("❓ | Query mode enabled - [Made by TXTm tag 1507 (Skidded)]")
+            Chat("❓ | Query mode enabled - [Made by Me (TXTm tag 1507)]")
         elseif mob == "Kahoot" then
-            Chat("🅺❕ | Multiple mode enabled - [Made by TXTm tag 1507 (Skidded)]")
+            Chat("🅺❕ | Multiple mode enabled - [Made by Me (TXTm tag 1507)]")
         end
     end)
 
