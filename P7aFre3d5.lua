@@ -856,7 +856,7 @@ anarchy:Add("Which anarchist movement emerged in Spain during the Spanish Civil 
 
 local anime = categoryManager.New("Anime")
 anime:Add("In which anime series does the protagonist, Luffy, aim to become the Pirate King?", {"One Piece", "Naruto", "Bleach", "Dragon Ball"})
-anime:Add("Who is the protagonist in the anime 'Attack on Titan'?", {"Eren Yeager", "Levi Ackerman", "Mikasa Ackerman", "Armin Arlert"})
+anime:Add("What is the name of the main protagonist in the popular anime and manga series 'Naruto'?", {"Naruto Uzumaki", "Sasuke Uchiha", "Kakashi Hatake", "Tsunade"})
 anime:Add("What is the name of the virtual reality MMORPG in the anime 'Sword Art Online'?", {"Sword Art Online", "Gun Gale Online", "ALfheim Online", "Accel World"})
 anime:Add("Which anime series features a group of students trying to assassinate their teacher, who has the appearance of an octopus?", {"Assassination Classroom", "Death Note", "Tokyo Ghoul", "Black Clover"}, 2)
 anime:Add("What is the name of the protagonist in the anime 'Fullmetal Alchemist' who seeks the Philosopher's Stone?", {"Edward Elric", "Alphonse Elric", "Roy Mustang", "Winry Rockbell"})
@@ -951,6 +951,13 @@ pokemon:Add("Which Pokémon is known for its ability to evolve into many differe
 pokemon:Add("What is the name of the Pokémon that is said to have the power of a hundred moves?", {"Mew", "Mewtwo", "Articuno", "Zapdos"})  
 pokemon:Add("Which Pokémon is known for its incredible speed and is often considered the fastest Pokémon?", {"Deoxys", "Giratina", "Darkrai", "Arceus"}, 2)  
 pokemon:Add("What is the name of the Pokémon that is said to have the power to control time?", {"Dialga", "Palkia", "Giratina", "Xerneas"})  
+
+local spongebob = categoryManager.New("SpongeBob") 
+spongebob:Add("What is the name of the main character in the animated TV series 'SpongeBob SquarePants'?", {"SpongeBob SquarePants", "Patrick Star", "Squidward Tentacles", "Sandy Cheeks"}) 
+spongebob:Add("What is the name of SpongeBob's pet snail?", {"Gary", "Patrick", "Squidward", "Mr. Krabs"}) 
+spongebob:Add("What is the name of the restaurant where SpongeBob works?", {"Krusty Krab", "Chum Bucket", "Bikini Bottom", "Jellyfish Fields"}) 
+spongebob:Add("Who is SpongeBob's best friend?", {"Patrick Star", "Squidward Tentacles", "Sandy Cheeks", "Mr. Krabs"}, 2) 
+spongebob:Add("What is the name of the city where SpongeBob lives?", {"Bikini Bottom", "Krusty Krab", "Jellyfish Fields", "Rock Bottom"})
 
 local categoryTable = {}
 for k, v in pairs(categories) do
