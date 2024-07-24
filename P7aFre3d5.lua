@@ -1172,10 +1172,10 @@ local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttwi
 local Window = OrionLib:MakeWindow({
     Name = "Quiz Script",
     TestMode = true,
-    SaveConfig = true,
+    SaveConfig = false,
     ConfigFolder = "OrionTest",
     IntroEnabled = true,
-    IntroText = "Welcome!",
+    IntroText = "Welcome My Nigga!",
     Icon = "rbxassetid://12345678", -- Optional: replace with your icon
 })
 
