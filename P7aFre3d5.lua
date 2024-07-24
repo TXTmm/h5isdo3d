@@ -622,36 +622,6 @@ local function awaitAnswer(targetQuestion)
 end
 
 --- Questions ---
-local function Shuffle(tbl)
-    local rng = Random.new()
-    for i = #tbl, 2, -1 do
-        local j = rng:NextInteger(1, i)
-        tbl[i], tbl[j] = tbl[j], tbl[i]
-    end
-    return tbl
-end
-
-local categoryManager = {}
-local categories = {}
-categoryManager.__index = categoryManager
-
-function categoryManager.New(categoryName)
-    categories[categoryName] = {questions = {}}
-    local newCategory = categories[categoryName]
-    setmetatable(newCategory, categoryManager)
-    return newCategory
-end
-
-function categoryManager:Add(questionText, options, value, correctAnswer)
-    local newQuestion = {questionText = questionText, options = options, value = value, correctAnswer = correctAnswer}
-    table.insert(self.questions, newQuestion)
-    self:ShuffleQuestions() -- Shuffle questions whenever a new one is added
-end
-
-function categoryManager:ShuffleQuestions()
-    self.questions = Shuffle(self.questions)
-end
-
 local flagsEasy = categoryManager.New("Flags-easy")
 flagsEasy:Add("What flag is this? 🇯🇵", {"Japan", "China", "South Korea", "Vietnam"})
 flagsEasy:Add("What flag is this? 🇫🇷", {"France", "Italy", "Germany", "Spain"})
