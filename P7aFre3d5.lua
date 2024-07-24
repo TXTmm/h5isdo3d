@@ -532,7 +532,7 @@ local function awaitAnswer(targetQuestion)
         end
         task.wait(settings.questionTimeout)
         UpdateSignText(targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex])
-        SendMessageWhenReady("⏱ | Times up. Correct answer was: "..targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex], true)
+        SendMessageWhenReady("⏱ | Times up. The answer was: "..targetQuestion.rightAnswer..") "..targetQuestion.answers[targetQuestion.rightAnswerIndex], true)
         timeIsOut = true
         currentQuestion = nil
         questionAnsweredBy = nil
