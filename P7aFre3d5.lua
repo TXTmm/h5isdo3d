@@ -1352,9 +1352,9 @@ end)
     d:Dropdown("Mode", {"Quiz", "Kahoot"}, true, function(mob)
         mode = mob:lower()
         if mob == "Quiz" then
-            Chat("❓ | Query mode enabled - [Made by Me (TXTm tag 1507)]")
+            Chat("❓ | Query mode enabled - [Made by Me TXTm tag 1507]")
         elseif mob == "Kahoot" then
-            Chat("🅺❕ | Multiple mode enabled - [Made by Me (TXTm tag 1507)]")
+            Chat("🅺❕ | Multiple mode enabled - [Made by TXTm tag 1507]")
         end
     end)
 
