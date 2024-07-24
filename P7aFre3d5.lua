@@ -1167,7 +1167,17 @@ local function getCategoryName(name) -- detects category from begging of string,
     end
 end
 ---------- UI ----------
-local library = loadstring(game:HttpGet('https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3'))()
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttwizz/Roblox/master/Orion.lua", true))()
+
+local Window = OrionLib:MakeWindow({
+    Name = "Quiz Script",
+    TestMode = true,
+    SaveConfig = true,
+    ConfigFolder = "OrionTest",
+    IntroEnabled = true,
+    IntroText = "Welcome!",
+    Icon = "rbxassetid://12345678", -- Optional: replace with your icon
+})
 
 local correctKey = "TXTm"
 local authenticated = false
@@ -1184,32 +1194,47 @@ local function getTargetPlayer(value)
     return nil
 end
 
-local w = library:CreateWindow("Quiz script")
-
+-- Create the main GUI
 local function createMainGUI()
-    local b = w:CreateFolder("Main controls")
+    local mainTab = Window:MakeTab({
+        Name = "Main controls",
+        Icon = "rbxassetid://4483345998",
+    })
 
-    b:Label("MADE BY TXTm#1507", {
+    mainTab:AddLabel("MADE BY TXTm#1507", {
         TextSize = 15,
         TextColor = Color3.fromRGB(255,255,255),
-        BgColor = Color3.fromRGB(69,69,69)
+        BgColor = Color3.fromRGB(69,69,69),
     })
 
     local selectedCategory
 
-    b:Box("Category", "string", function(value)
-        selectedCategory = getCategoryName(value)
-    end)
-
-    b:Dropdown("Category", categoryTable, true, function(mob)
-        selectedCategory = mob
-    end)
-
-    b:Button("Start quiz", function()
-        if categories[selectedCategory] then
-            startQuiz(selectedCategory)
+    mainTab:AddTextbox({
+        Name = "Category",
+        Default = "Enter Category",
+        TextDisappear = true,
+        Callback = function(value)
+            selectedCategory = getCategoryName(value)
         end
-    end)
+    })
+
+    mainTab:AddDropdown({
+        Name = "Category",
+        Default = "Select Category",
+        Options = categoryTable,
+        Callback = function(mob)
+            selectedCategory = mob
+        end
+    })
+
+    mainTab:AddButton({
+        Name = "Start quiz",
+        Callback = function()
+            if categories[selectedCategory] then
+                startQuiz(selectedCategory)
+            end
+        end
+    })
 
     local RS = game:GetService("ReplicatedStorage")
     local TCS = game:GetService("TextChatService")
@@ -1222,165 +1247,266 @@ local function createMainGUI()
         end
     end
 
-    b:Button("Stop", function()
-        quizCooldown, quizRunning, currentQuestion, questionAnsweredBy, awaitingAnswer = true, false, nil, nil, false
-        Chat("🛑 | Question Stopped.")
-        task.delay(5, function() quizCooldown = false end)
-    end)
+    mainTab:AddButton({
+        Name = "Stop",
+        Callback = function()
+            quizCooldown, quizRunning, currentQuestion, questionAnsweredBy, awaitingAnswer = true, false, nil, nil, false
+            Chat("🛑 | Question Stopped.")
+            task.delay(5, function() quizCooldown = false end)
+        end
+    })
 
-    b:Button("Send rules", function()
-        sendRules()
-    end)
+    mainTab:AddButton({
+        Name = "Send rules",
+        Callback = function()
+            sendRules()
+        end
+    })
 
-    b:Button("Send server LB", function()
-        sendLeaderboard("Server", "🏆| ")
-    end)
+    mainTab:AddButton({
+        Name = "Send server LB",
+        Callback = function()
+            sendLeaderboard("Server", "🏆| ")
+        end
+    })
 
-    b:Button("Reset all points", function()
-        pointManager.ResetAllPoints()
-        Chat("All points reset.")
-    end)
+    mainTab:AddButton({
+        Name = "Reset all points",
+        Callback = function()
+            pointManager.ResetAllPoints()
+            Chat("All points reset.")
+        end
+    })
 
-    local c = w:CreateFolder("Points System")
+    local pointsTab = Window:MakeTab({
+        Name = "Points System",
+        Icon = "rbxassetid://4483345998",
+    })
+
     local targetPlayer
 
-    c:Box("Target", "string", function(value)
-        targetPlayer = getTargetPlayer(value)
-        print("Target Player: ", targetPlayer)
-    end)
+    pointsTab:AddTextbox({
+        Name = "Target",
+        Default = "Enter Player",
+        TextDisappear = true,
+        Callback = function(value)
+            targetPlayer = getTargetPlayer(value)
+            print("Target Player: ", targetPlayer)
+        end
+    })
 
     local pointsToAdd
 
-    c:Box("Amount of points", "number", function(value)
-        if value and tonumber(value) then
-            pointsToAdd = value
+    pointsTab:AddTextbox({
+        Name = "Amount of points",
+        Default = "0",
+        TextDisappear = true,
+        Callback = function(value)
+            if value and tonumber(value) then
+                pointsToAdd = value
+            end
+            print("Points to add: ", pointsToAdd)
         end
-        print("Points to add: ", pointsToAdd)
-    end)
+    })
 
-    c:Button("Apply points", function()
-        print("Apply Points Button Clicked")
-        if pointsToAdd then
+    pointsTab:AddButton({
+        Name = "Apply points",
+        Callback = function()
+            print("Apply Points Button Clicked")
+            if pointsToAdd then
+                if targetPlayer == "ALL" then
+                    for _, player in ipairs(game.Players:GetPlayers()) do
+                        pointManager.AddPoints(player, pointsToAdd, "Global")
+                    end
+                    Chat("➕ | "..pointsToAdd.." points have been added to everyone.")
+                elseif targetPlayer then
+                    pointManager.AddPoints(targetPlayer, pointsToAdd, "Global")
+                    Chat("➕ | "..targetPlayer.DisplayName.. "'s points have been increased by ".. pointsToAdd.. ".")
+                else
+                    Chat("❌ | Target player not found.")
+                end
+            end
+        end
+    })
+
+    pointsTab:AddButton({
+        Name = "Decrease points",
+        Callback = function()
+            print("Decrease Points Button Clicked")
+            if pointsToAdd then
+                if targetPlayer == "ALL" then
+                    for _, player in ipairs(game.Players:GetPlayers()) do
+                        pointManager.AddPoints(player, -pointsToAdd, "Global")
+                    end
+                    Chat("➖ | "..pointsToAdd.." points have been decreased from everyone.")
+                elseif targetPlayer then
+                    pointManager.AddPoints(targetPlayer, -pointsToAdd, "Global")
+                    Chat("➖ | "..targetPlayer.DisplayName.. "'s points have been decreased by ".. pointsToAdd.. ".")
+                else
+                    Chat("❌ | Target player not found.")
+                end
+            end
+        end
+    })
+
+    pointsTab:AddButton({
+        Name = "Reset points",
+        Callback = function()
+            print("Reset Points Button Clicked")
             if targetPlayer == "ALL" then
                 for _, player in ipairs(game.Players:GetPlayers()) do
-                    pointManager.AddPoints(player, pointsToAdd, "Global")
+                    pointManager.ClearGlobalPointsForPlayer(player)
                 end
-                Chat("➕ | "..pointsToAdd.." points have been added to everyone.")
+                Chat("All players' points have been reset.")
             elseif targetPlayer then
-                pointManager.AddPoints(targetPlayer, pointsToAdd, "Global")
-                Chat("➕ | "..targetPlayer.DisplayName.. "'s points have been increased by ".. pointsToAdd.. ".")
+                pointManager.ClearGlobalPointsForPlayer(targetPlayer)
+                Chat(targetPlayer.DisplayName.. "'s points have been reset.")
             else
                 Chat("❌ | Target player not found.")
             end
         end
-    end)
+    })
 
-    c:Button("Decrease points", function()
-        print("Decrease Points Button Clicked")
-        if pointsToAdd then
-            if targetPlayer == "ALL" then
-                for _, player in ipairs(game.Players:GetPlayers()) do
-                    pointManager.AddPoints(player, -pointsToAdd, "Global")
-                end
-                Chat("➖ | "..pointsToAdd.." points have been decreased from everyone.")
-            elseif targetPlayer then
-                pointManager.AddPoints(targetPlayer, -pointsToAdd, "Global")
-                Chat("➖ | "..targetPlayer.DisplayName.. "'s points have been decreased by ".. pointsToAdd.. ".")
-            else
-                Chat("❌ | Target player not found.")
+    local settingsTab = Window:MakeTab({
+        Name = "Settings",
+        Icon = "rbxassetid://4483345998",
+    })
+
+    settingsTab:AddDropdown({
+        Name = "Mode",
+        Default = "Quiz",
+        Options = {"Quiz", "Kahoot"},
+        Callback = function(mob)
+            mode = mob:lower()
+            if mob == "Quiz" then
+                Chat("❓ | Query mode enabled - [Made by TXTm tag 1507]")
+            elseif mob == "Kahoot" then
+                Chat("🅺❕ | Multiple mode enabled - [Made by TXTm tag 1507]")
             end
         end
-    end)
+    })
 
-    c:Button("Reset points", function()
-        print("Reset Points Button Clicked")
-        if targetPlayer == "ALL" then
-            for _, player in ipairs(game.Players:GetPlayers()) do
-                pointManager.ClearGlobalPointsForPlayer(player)
+    settingsTab:AddToggle({
+        Name = "Autoplay quizzes automatically",
+        Default = false,
+        Callback = function(value)
+            settings.autoplay = value
+        end
+    })
+
+    settingsTab:AddTextbox({
+        Name = "Question timeout",
+        Default = "30",
+        TextDisappear = true,
+        Callback = function(value)
+            if value then
+                settings.questionTimeout = tonumber(value)
             end
-            Chat("All players' points have been reset.")
-        elseif targetPlayer then
-            pointManager.ClearGlobalPointsForPlayer(targetPlayer)
-            Chat(targetPlayer.DisplayName.. "'s points have been reset.")
-        else
-            Chat("❌ | Target player not found.")
         end
-    end)
+    })
 
-    local d = w:CreateFolder("Settings")
-
-    d:Dropdown("Mode", {"Quiz", "Kahoot"}, true, function(mob)
-        mode = mob:lower()
-        if mob == "Quiz" then
-            Chat("❓ | Query mode enabled - [Made by TXTm tag 1507]")
-        elseif mob == "Kahoot" then
-            Chat("🅺❕ | Multiple mode enabled - [Made by TXTm tag 1507]")
+    settingsTab:AddTextbox({
+        Name = "User cooldown on wrong answer",
+        Default = "10",
+        TextDisappear = true,
+        Callback = function(value)
+            if value then
+                settings.userCooldown = tonumber(value)
+            end
         end
-    end)
+    })
 
-    d:Toggle("Autoplay quizzes automatically", function(value)
-        settings.autoplay = value
-    end)
-
-    d:Box("Question timeout", "number", function(value)
-        if value then
-            settings.questionTimeout = value
+    settingsTab:AddTextbox({
+        Name = "Automatically send leaderboard after questions",
+        Default = "5",
+        TextDisappear = true,
+        Callback = function(value)
+            if value then
+                settings.sendLeaderBoardAfterQuestions = tonumber(value)
+            end
         end
-    end)
+    })
 
-    d:Box("User cooldown on wrong answer", "number", function(value)
-        if value then
-            settings.userCooldown = value
+    settingsTab:AddToggle({
+        Name = "Disable automatic sending of server LB at the end of quiz",
+        Default = false,
+        Callback = function(value)
+            settings.automaticServerQuizLeaderboard = not value
         end
-    end)
+    })
 
-    d:Box("Automatically send leaderboard after questions", "number", function(value)
-        if value then
-            settings.sendLeaderBoardAfterQuestions = value
+    settingsTab:AddToggle({
+        Name = "Do not repeat tagged messages",
+        Default = false,
+        Callback = function(value)
+            if not oldChat then
+                settings.repeatTagged = not value
+            end
         end
-    end)
-
-    d:Toggle("Disable automatic sending of server LB at the end of quiz", function(value)
-        settings.automaticServerQuizLeaderboard = not value
-    end)
-
-    d:Toggle("Do not repeat tagged messages", function(value)
-        if not oldChat then
-            settings.repeatTagged = not value
-        end
-    end)
+    })
 
     if boothGame then
-        d:Toggle("Disable sign status (booth game only)", function(value)
-            settings.signStatus = not value
-        end)
-        d:Toggle("Don't use roman numbers for sign timer (may get tagged)", function(value)
-            settings.romanNumbers = not value
-        end)
+        settingsTab:AddToggle({
+            Name = "Disable sign status (booth game only)",
+            Default = false,
+            Callback = function(value)
+                settings.signStatus = not value
+            end
+        })
+        settingsTab:AddToggle({
+            Name = "Don't use roman numbers for sign timer (may get tagged)",
+            Default = false,
+            Callback = function(value)
+                settings.romanNumbers = not value
+            end
+        })
     end
 
-    local e = w:CreateFolder("Destroy GUI")
+    local destroyTab = Window:MakeTab({
+        Name = "Destroy GUI",
+        Icon = "rbxassetid://4483345998",
+    })
 
-    e:Button("Disable connections", function()
-        if oldChat then
-            for _, connection in playerChatConnections do
-                joinConnection:Disconnect()
-                connection:Disconnect()
+    destroyTab:AddButton({
+        Name = "Disable connections",
+        Callback = function()
+            if oldChat then
+                for _, connection in playerChatConnections do
+                    joinConnection:Disconnect()
+                    connection:Disconnect()
+                end
+            else
+                chatConnection:Disconnect()
             end
-        else
-            chatConnection:Disconnect()
         end
-    end)
-    e:DestroyGui()
+    })
+
+    destroyTab:AddButton({
+        Name = "Destroy GUI",
+        Callback = function()
+            Window:Destroy()
+        end
+    })
 end
 
-local k = w:CreateFolder("Key System")
+local keyTab = Window:MakeTab({
+    Name = "Key System",
+    Icon = "rbxassetid://4483345998",
+})
 
-k:Box("Enter Key", "string", function(value)
-    if value == correctKey then
-        authenticated = true
-        createMainGUI()
-    else
-        Chat("❌ | Incorrect key.")
+keyTab:AddTextbox({
+    Name = "Enter Key",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(value)
+        if value == correctKey then
+            authenticated = true
+            createMainGUI()
+        else
+            Chat("❌ | Incorrect key.")
+        end
     end
-end)
+})
+
+-- Finish the script
+OrionLib:Init()
