@@ -1460,6 +1460,18 @@ local function createMainGUI()
         })
     end
 
+        local otherTab = Window:MakeTab({
+    Name = "Other",
+    Icon = "rbxassetid://4483345998",
+})
+
+otherTab:AddButton({
+    Name = "Load Infinite Yield",
+    Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+    end
+})
+
     local destroyTab = Window:MakeTab({
         Name = "Destroy GUI",
         Icon = "rbxassetid://4483345998",
