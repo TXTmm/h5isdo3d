@@ -1181,11 +1181,6 @@ local Window = OrionLib:MakeWindow({
 
 local correctKey = "TXTm"
 local authenticated = false
-local whitelist = {}
-local blacklist = {}
-
-local blockedPlayers = {}
-local whiteListedplayers = {}
 
 local function getTargetPlayer(value)
     if value:lower() == "all" then
@@ -1197,17 +1192,6 @@ local function getTargetPlayer(value)
         end
     end
     return nil
-end
-
-local function Chat(msg)
-    local RS = game:GetService("ReplicatedStorage")
-    local TCS = game:GetService("TextChatService")
-
-    if RS:FindFirstChild("DefaultChatSystemChatEvents") then
-        RS.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
-    else
-        TCS.TextChannels.RBXGeneral:SendAsync(msg)
-    end
 end
 
 -- Create the main GUI
@@ -1252,6 +1236,17 @@ local function createMainGUI()
         end
     })
 
+    local RS = game:GetService("ReplicatedStorage")
+    local TCS = game:GetService("TextChatService")
+
+    local function Chat(msg)
+        if RS:FindFirstChild("DefaultChatSystemChatEvents") then
+            RS.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
+        else
+            TCS.TextChannels.RBXGeneral:SendAsync(msg)
+        end
+    end
+
     mainTab:AddButton({
         Name = "Stop",
         Callback = function()
@@ -1283,116 +1278,6 @@ local function createMainGUI()
         end
     })
 
-    -- Whitelist/Blacklist System Tab
-    local whitelistBlacklistTab = Window:MakeTab({
-        Name = "Whitelist/Blacklist System",
-        Icon = "rbxassetid://4483345998",
-    })
-
-    local targetPlayer
-
-    whitelistBlacklistTab:AddTextbox({
-        Name = "Player Username",
-        Default = "",
-        TextDisappear = true,
-        Callback = function(value)
-            targetPlayer = getTargetPlayer(value)
-        end
-    })
-
-    whitelistBlacklistTab:AddButton({
-        Name = "Whitelist",
-        Callback = function()
-            if targetPlayer then
-                if targetPlayer == "ALL" then
-                    for _, player in ipairs(game.Players:GetPlayers()) do
-                        whitelist[player.UserId] = true
-                    end
-                    Chat("✅ | Whitelisted all players.")
-                elseif targetPlayer then
-                    whitelist[targetPlayer.UserId] = true
-                    Chat("✅ | Whitelisted " .. targetPlayer.DisplayName .. ".")
-                else
-                    Chat("❌ | Target player not found.")
-                end
-            end
-        end
-    })
-
-    whitelistBlacklistTab:AddButton({
-        Name = "Unwhitelist",
-        Callback = function()
-            if targetPlayer then
-                if targetPlayer == "ALL" then
-                    for _, player in ipairs(game.Players:GetPlayers()) do
-                        whitelist[player.UserId] = nil
-                    end
-                    Chat("❌ | Unwhitelisted all players.")
-                elseif targetPlayer then
-                    whitelist[targetPlayer.UserId] = nil
-                    Chat("❌ | Unwhitelisted " .. targetPlayer.DisplayName .. ".")
-                else
-                    Chat("❌ | Target player not found.")
-                end
-            end
-        end
-    })
-
-    whitelistBlacklistTab:AddButton({
-        Name = "Clear whitelist",
-        Callback = function()
-            whitelist = {}
-            Chat("🗑️ | Whitelist cleared.")
-        end
-    })
-
-    whitelistBlacklistTab:AddButton({
-        Name = "Blacklist",
-        Callback = function()
-            if targetPlayer then
-                if targetPlayer == "ALL" then
-                    for _, player in ipairs(game.Players:GetPlayers()) do
-                        blacklist[player.UserId] = true
-                    end
-                    Chat("🚫 | Blacklisted all players.")
-                elseif targetPlayer then
-                    blacklist[targetPlayer.UserId] = true
-                    Chat("🚫 | Blacklisted " .. targetPlayer.DisplayName .. ".")
-                else
-                    Chat("❌ | Target player not found.")
-                end
-            end
-        end
-    })
-
-    whitelistBlacklistTab:AddButton({
-        Name = "Unblacklist",
-        Callback = function()
-            if targetPlayer then
-                if targetPlayer == "ALL" then
-                    for _, player in ipairs(game.Players:GetPlayers()) do
-                        blacklist[player.UserId] = nil
-                    end
-                    Chat("✅ | Unblacklisted all players.")
-                elseif targetPlayer then
-                    blacklist[targetPlayer.UserId] = nil
-                    Chat("✅ | Unblacklisted " .. targetPlayer.DisplayName .. ".")
-                else
-                    Chat("❌ | Target player not found.")
-                end
-            end
-        end
-    })
-
-    whitelistBlacklistTab:AddButton({
-        Name = "Clear blacklist",
-        Callback = function()
-            blacklist = {}
-            Chat("🗑️ | Blacklist cleared.")
-        end
-    })
-
-    -- Points System Tab
     local pointsTab = Window:MakeTab({
         Name = "Points System",
         Icon = "rbxassetid://4483345998",
@@ -1627,23 +1512,5 @@ keyTab:AddTextbox({
         end
     end
 })
-
-local function notifyPlayerNotAllowed(player, reason)
-    local msg = "❌ | Player " .. player.DisplayName .. " isn't allowed: " .. reason
-    local RS = game:GetService("ReplicatedStorage")
-    local TCS = game:GetService("TextChatService")
-    
-    if RS:FindFirstChild("DefaultChatSystemChatEvents") then
-        RS.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
-    else
-        TCS.TextChannels.RBXGeneral:SendAsync(msg)
-    end
-end
-
-if not isPlayerAllowed(player) then
-    local reason = table.find(blockedPlayers, player.Name) and "blocked" or "not whitelisted"
-    notifyPlayerNotAllowed(player, reason)
-    return
-end
 
 OrionLib:Init()
