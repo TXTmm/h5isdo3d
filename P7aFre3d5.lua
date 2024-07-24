@@ -1299,7 +1299,7 @@ local function createMainGUI()
 
     pointsTab:AddTextbox({
         Name = "Amount of points",
-        Default = "",
+        Default = "0",
         TextDisappear = true,
         Callback = function(value)
             if value and tonumber(value) then
