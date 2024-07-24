@@ -1242,6 +1242,17 @@ local function createMainGUI()
         Chat("All points reset.")
     end)
 
+    -- New "Send Categories" button
+    b:Button("Send Categories", function()
+        local categoryList = "📋 | Categories: "
+        for categoryName, _ in pairs(categories) do
+            categoryList = categoryList .. categoryName .. ", "
+        end
+        -- Remove the last comma and space
+        categoryList = categoryList:sub(1, -3)
+        Chat(categoryList)
+    end)
+
     local c = w:CreateFolder("Points System")
     local targetPlayer
 
@@ -1306,68 +1317,6 @@ local function createMainGUI()
         else
             Chat("❌ | Target player not found.")
         end
-    end)
-
-    local c = w:CreateFolder("Blacklist/Whitelist")
-
-    c:Box("Target", "string", function(value)
-        targetPlayer = getTargetPlayer(value)
-    end)
-
-    c:Button("Block", function()
-        if targetPlayer then
-            table.insert(blockedPlayers, targetPlayer.Name)
-            Chat("🚫 | "..targetPlayer.DisplayName.. " has been blacklisted.")
-        else
-            Chat("❌ | Target player not found.")
-        end
-    end)
-
-    c:Button("Unblock", function()
-        if targetPlayer then
-            local index = table.find(blockedPlayers, targetPlayer.Name)
-            if index then
-                table.remove(blockedPlayers, index)
-                Chat("🔓 | "..targetPlayer.DisplayName.. " has been removed from the blacklist.")
-            else
-                Chat("❌ | Target player not found in blacklist.")
-            end
-        else
-            Chat("❌ | Target player not found.")
-        end
-    end)
-
-    c:Button("Unblock all", function()
-        table.clear(blockedPlayers)
-        Chat("🌎🔓 | All players have been removed from the blacklist.")
-    end)
-
-    c:Button("Whitelist", function()
-        if targetPlayer then
-            table.insert(whiteListedplayers, targetPlayer.Name)
-            Chat("📝 | "..targetPlayer.DisplayName.. " has been whitelisted.")
-        else
-            Chat("❌ | Target player not found.")
-        end
-    end)
-
-    c:Button("Unwhitelist", function()
-        if targetPlayer then
-            local index = table.find(whiteListedplayers, targetPlayer.Name)
-            if index then
-                table.remove(whiteListedplayers, index)
-                Chat("🆓 | "..targetPlayer.DisplayName.. " has been removed from the whitelist.")
-            else
-                Chat("❌ | Target player not found in whitelist.")
-            end
-        else
-            Chat("❌ | Target player not found.")
-        end
-    end)
-
-    c:Button("Unwhitelist all", function()
-        table.clear(whiteListedplayers)
-        Chat("Whitelist cleared.")
     end)
 
     local d = w:CreateFolder("Settings")
