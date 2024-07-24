@@ -1373,12 +1373,12 @@ local function createMainGUI()
     settingsTab:AddDropdown({
         Name = "Mode",
         Default = "Query",
-        Options = {"Query", "multiple"},
+        Options = {"Query", "Multiple"},
         Callback = function(mob)
             mode = mob:lower()
             if mob == "Query" then
                 Chat("❓ - Query mode initialized.")
-            elseif mob == "multiple" then
+            elseif mob == "Multiple" then
                 Chat("🅺❕ - Multiple mode initialized.")
             end
         end
