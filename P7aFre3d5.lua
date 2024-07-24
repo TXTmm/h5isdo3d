@@ -1396,7 +1396,7 @@ local function createMainGUI()
 
     settingsTab:AddTextbox({
         Name = "Question timeout",
-        Default = "30",
+        Default = "13",
         TextDisappear = true,
         Callback = function(value)
             if value then
@@ -1407,7 +1407,7 @@ local function createMainGUI()
 
     settingsTab:AddTextbox({
         Name = "User cooldown on wrong answer",
-        Default = "10",
+        Default = "3",
         TextDisappear = true,
         Callback = function(value)
             if value then
@@ -1418,7 +1418,7 @@ local function createMainGUI()
 
     settingsTab:AddTextbox({
         Name = "Automatically send leaderboard after questions",
-        Default = "5",
+        Default = "3",
         TextDisappear = true,
         Callback = function(value)
             if value then
@@ -1484,7 +1484,7 @@ local function createMainGUI()
     destroyTab:AddButton({
         Name = "Destroy GUI",
         Callback = function()
-            Window:Destroy()
+            OrionLib:Destroy()
         end
     })
 end
