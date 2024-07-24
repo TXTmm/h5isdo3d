@@ -591,7 +591,7 @@ local function awaitAnswer(targetQuestion)
             for _, user in pairs(answeredCorrectly) do
                 if currentLength + #user + (2 * #tempuserList) >= maxCharactersInMessage then -- maxCharactersInMessage is the limit for chat messages in Roblox. For each user, we are adding 2 more characters (, )
                     if firstIteration then
-                        SendMessageWhenReady("😸🎉 | Players who answered correctly: "..table.concat(tempuserList, ", "))
+                        SendMessageWhenReady("🎉 | Players who answered correctly: "..table.concat(tempuserList, ", "))
                         firstIteration = false
                     else
                         SendMessageWhenReady(table.concat(tempuserList, ", "))
@@ -607,7 +607,7 @@ local function awaitAnswer(targetQuestion)
             end
             if #tempuserList > 0 then
                 if firstIteration then
-                    SendMessageWhenReady("😸🎉 | Players who answered correctly: "..table.concat(tempuserList, ", "))
+                    SendMessageWhenReady("🎉 | Players who answered correctly: "..table.concat(tempuserList, ", "))
                     firstIteration = false
                 else
                     SendMessageWhenReady(table.concat(tempuserList, ", "))
@@ -622,57 +622,6 @@ local function awaitAnswer(targetQuestion)
 end
 
 --- Questions ---
--- Shuffle Function for any table
-local function Shuffle(tbl)
-    local rng = Random.new()
-    for i = #tbl, 2, -1 do
-        local j = rng:NextInteger(1, i)
-        tbl[i], tbl[j] = tbl[j], tbl[i]
-    end
-    return tbl
-end
-
--- Category Manager
-local categoryManager = {}
-local categories = {}
-categoryManager.__index = categoryManager
-
-function categoryManager.New(categoryName)
-    categories[categoryName] = {questions = {}}
-    local newCategory = categories[categoryName]
-    setmetatable(newCategory, categoryManager)
-    return newCategory
-end
-
-function categoryManager:Add(questionText, options, value, correctAnswer)
-    local newQuestion = {
-        questionText = questionText,
-        options = options,
-        value = value,
-        correctAnswer = correctAnswer
-    }
-    table.insert(self.questions, newQuestion)
-    -- Shuffle questions whenever a new one is added
-    self:ShuffleQuestions()
-end
-
-function categoryManager:ShuffleQuestions()
-    self.questions = Shuffle(self.questions)
-end
-
--- Debug function to print questions
-local function PrintCategoryQuestions(categoryName)
-    local category = categories[categoryName]
-    if category then
-        for _, question in ipairs(category.questions) do
-            print("Question: " .. question.questionText)
-            print("Options: " .. table.concat(question.options, ", "))
-        end
-    else
-        print("Category not found.")
-    end
-end
-
 local flagsEasy = categoryManager.New("Flags-easy")
 flagsEasy:Add("What flag is this? 🇯🇵", {"Japan", "China", "South Korea", "Vietnam"})
 flagsEasy:Add("What flag is this? 🇫🇷", {"France", "Italy", "Germany", "Spain"})
