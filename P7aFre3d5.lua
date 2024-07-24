@@ -5,8 +5,6 @@ local questionAnsweredBy
 local quizRunning = false
 local players = game:GetService("Players")
 local localPlayer = players.LocalPlayer
-local blockedPlayers = {}
-local whiteListedplayers = {}
 local mode = "quiz"
 local answeredCorrectly = {}
 local submittedAnswer = {}
