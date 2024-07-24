@@ -1377,7 +1377,7 @@ local function createMainGUI()
         Callback = function(mob)
             mode = mob:lower()
             if mob == "Quiz" then
-                Chat("❓ | Query mode enabled - [Made by TXTm tag 1507 test]")
+                Chat("❓ | Query mode enabled - [Made by TXTm tag 1507]")
             elseif mob == "Kahoot" then
                 Chat("🅺❕ | Multiple mode enabled - [Made by TXTm tag 1507]")
             end
