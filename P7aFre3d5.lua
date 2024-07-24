@@ -2,10 +2,10 @@ local letters = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P"
 local userCooldowns = {}
 local currentQuestion
 local questionAnsweredBy
-local quizRunning = false
+local queryRunning = false
 local players = game:GetService("Players")
 local localPlayer = players.LocalPlayer
-local mode = "quiz"
+local mode = "query"
 local answeredCorrectly = {}
 local submittedAnswer = {}
 local awaitingAnswer = false
@@ -14,7 +14,7 @@ local timeSinceLastMessage = tick()
 local placeId = game.PlaceId
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local textChatService = game:GetService("TextChatService")
-local quizCooldown = false
+local queryCooldown = false
 local answerOptionsSaid = 0 -- how many answer options have been said (0 = none, 1 = a, 2 = b, etc.). Prevents users from spamming letters before they even know what the corresponding answer option is
 local minMessageCooldown = 1.8 -- how much you need to wait to send another message to avoid ratelimit
 
@@ -23,7 +23,7 @@ local settings = {
     userCooldown = 3,
     sendLeaderBoardAfterQuestions = 3,
     automaticLeaderboards = true,
-    automaticServerQuizLeaderboard = true,
+    automaticServerQueryLeaderboard = true,
     signStatus = true,
     romanNumbers = true,
     autoplay = false,
@@ -94,7 +94,7 @@ local importantMessageSent: boolean -- if a important message that needs to be r
 local messageBeforeFilter: string
 local answeredByAltMessage: string -- alt message specially for the correct answer text
 function SendMessageWhenReady(message: string, important: boolean?, altMessage: string?) -- sends message so roblox won't rate limit it. if message is "important", script will send it again if it gets filtered/tagged first time. Altmessage is the message to send instead of original if it gets tagged
-    if not quizRunning then
+    if not queryRunning then
         return
     end
     if not settings.repeatTagged then
@@ -111,14 +111,14 @@ function SendMessageWhenReady(message: string, important: boolean?, altMessage: 
         timeSinceLastMessage = tick()
     else
         task.wait(minMessageCooldown - (tick() - timeSinceLastMessage))
-        if not quizRunning then
+        if not queryRunning then
             return
         end
         Chat(message)
         timeSinceLastMessage = tick()
     end
     if important then
-        while not antiFilteringDone and quizRunning do -- yields until the anti filter functions have done their job
+        while not antiFilteringDone and queryRunning do -- yields until the anti filter functions have done their job
             task.wait()
         end
     end
@@ -152,9 +152,9 @@ if placeId == 5118029260 then -- GRP cuts down messages at 100 characters
     maxCharactersInMessage = 100
 end
 
-local endMessage = "Quiz ended"
+local endMessage = "Queries ended"
 if localPlayer.UserId == 2005147350 then
-    endMessage = "Quiz ended"
+    endMessage = "Queries ended"
 end
 
 local function CalculateReadTime(text: string): number
@@ -189,7 +189,7 @@ function question.New(quesitonText: string, options: table, value: number, corre
 end
 
 function question:Ask()
-    if not quizRunning then
+    if not queryRunning then
         return
     end
     answerOptionsSaid = 0
@@ -198,26 +198,26 @@ function question:Ask()
     self.rightAnswerIndex = table.find(self.answers, rightAnswerBeforeShuffle)
     self.rightAnswer = letters[self.rightAnswerIndex]
     if self.value > 1 then
-        SendMessageWhenReady("💸 | "..self.value.."x points for question")
+        SendMessageWhenReady("💸 - "..self.value.."x points for question")
         task.wait(2)
     end
     questionAnsweredBy = nil
     UpdateSignText(self.mainQuestion)
     currentQuestion = self
     questionPoints = self.value
-    SendMessageWhenReady("🗣 | "..self.mainQuestion, true)
-    if not quizRunning then
+    SendMessageWhenReady("🗣 - "..self.mainQuestion, true)
+    if not queryRunning then
         return
     end
     task.wait(CalculateReadTime(self.mainQuestion))
     for i, v in ipairs(self.answers) do
-        if questionAnsweredBy or not quizRunning then
+        if questionAnsweredBy or not queryRunning then
             return
         end
         if i ~= 1 then
             task.wait(CalculateReadTime(v))
         end
-        if questionAnsweredBy or not quizRunning then
+        if questionAnsweredBy or not queryRunning then
             return
         end
         SendMessageWhenReady(letters[i]..") "..v, true) -- 1 = A) 2 = B) 3 = C) etc.
@@ -229,14 +229,14 @@ local function SplitIntoMessages(itemTable: table, separtor: string, waitTime: n
     local tempItemList = {}
     local currentLength = 0
     for _, item in pairs(itemTable) do
-        if quizRunning then
+        if queryRunning then
             return
         end
         if currentLength + #item + (#separtor * #tempItemList) >= maxCharactersInMessage then -- maxCharactersInMessage characters is the limit for chat messages in Roblox. For each item, we are adding a sepatator
             local conctatTable = table.concat(tempItemList, separtor)
             Chat(conctatTable)
             task.wait(waitTime or CalculateReadTime(conctatTable) * 0.6) -- multiplied by 0.6 because full read time is too long
-            if quizRunning then
+            if queryRunning then
                 return
             end
             table.clear(tempItemList)
@@ -247,7 +247,7 @@ local function SplitIntoMessages(itemTable: table, separtor: string, waitTime: n
             currentLength = currentLength + #item
         end
     end
-    if not quizRunning then
+    if not queryRunning then
         Chat(table.concat(tempItemList, separtor))
     end
 end
@@ -277,7 +277,7 @@ function pointManager.NewAccount(player)
     userPoints[player.Name] = {}
     local playerPoints = userPoints[player.Name]
     playerPoints.GlobalPoints = 0
-    playerPoints.CurrentQuizPoints = 0
+    playerPoints.CurrentQueryPoints = 0
     setmetatable(playerPoints, pointManager)
     return playerPoints
 end
@@ -295,27 +295,27 @@ function pointManager.AddPoints(player, points: number, type: string)
     end
     if type == "All" then
         playerAccount.GlobalPoints += points
-        if quizRunning then
-            playerAccount.CurrentQuizPoints += points
+        if queryRunning then
+            playerAccount.CurrentQueryPoints += points
         end
     elseif type == "Global" then
         playerAccount.GlobalPoints += points
-    elseif type == "CurrentQuiz" then
-        playerAccount.CurrentQuizPoints += points
+    elseif type == "CurrentQuery" then
+        playerAccount.CurrentQueryPoints += points
     end
 end
 
-function pointManager.ClearQuizPointsForPlayer(player)
+function pointManager.ClearQueryPointsForPlayer(player)
     local playerAccount = userPoints[player.Name]
     if not playerAccount then
         return
     end
-    playerAccount.CurrentQuizPoints = 0
+    playerAccount.CurrentQueryPoints = 0
 end
 
-function pointManager.ClearQuizPoints()
+function pointManager.ClearQueryPoints()
     for _, v in pairs(userPoints) do
-        v.CurrentQuizPoints = 0
+        v.CurrentQueryPoints = 0
     end
 end
 
@@ -342,7 +342,7 @@ end
 function pointManager.ResetAllPoints()
     for _, v in pairs(userPoints) do
         v.GlobalPoints = 0
-        v.CurrentQuizPoints = 0
+        v.CurrentQueryPoints = 0
     end
 end
 -------
@@ -415,7 +415,7 @@ local function startChatListening(message: string, player: Player)
     end
     if matchingLetter or matchAnswer then
         if matchingLetter == currentQuestion.rightAnswer or matchAnswer == currentQuestion.answers[currentQuestion.rightAnswerIndex] then
-            if mode == "quiz" then
+            if mode == "query" then
                 questionAnsweredBy = player
                 currentQuestion = nil
             else
@@ -427,9 +427,9 @@ local function startChatListening(message: string, player: Player)
                     pointManager.AddPoints(player, questionPoints)
                 end
             end
-        elseif mode == "quiz" then
+        elseif mode == "query" then
             if awaitingAnswer then
-                requestSendMessage("😹✖ | "..player.DisplayName.." answered WRONG. Retry in "..tostring(settings.userCooldown).." seconds")
+                requestSendMessage("😹✖ - "..player.DisplayName.." answered WRONG. Retry in "..tostring(settings.userCooldown).." seconds")
             end
             table.insert(userCooldowns, player.Name)
             task.delay(settings.userCooldown, function()
@@ -446,7 +446,7 @@ local function processMessage(player: Player, message: string)
     if player ~= localPlayer then
         startChatListening(message, player)
     else
-        if not importantMessageSent or not quizRunning then
+        if not importantMessageSent or not queryRunning then
             return
         end
         if messageBeforeFilter == message or (answeredByAltMessage and string.find(message, answeredByAltMessage)) then -- if message before and after filtering are exactly the same, the message has not been filtered
@@ -458,17 +458,17 @@ local function processMessage(player: Player, message: string)
         end
         filtersInARow += 1
         if filtersInARow == 1 then
-            SendMessageWhenReady("🔄 | Attempting to resend filtered message...")
+            SendMessageWhenReady("🔄 - Attempting to resend filtered message...")
             task.wait(5) -- waiting makes the the filtering system less agressive
         elseif filtersInARow == 2 then
-            SendMessageWhenReady("🔄 | Resending previous filtered message...")
+            SendMessageWhenReady("🔄 - Resending previous filtered message...")
             task.wait(6)
         else
-            SendMessageWhenReady("🛠️ | Attempting to get around chat filter")
+            SendMessageWhenReady("🛠️ - Attempting to get around chat filter")
             task.wait(6)
             filtersInARow = 0
         end
-        if not quizRunning then
+        if not queryRunning then
             return
         end
         if questionAnsweredBy and answeredByAltMessage then -- proceed to say message after question asnwered only if the message is the message with the correct answer
@@ -519,18 +519,18 @@ end
 
 
 local function awaitAnswer(targetQuestion)
-    if not quizRunning then
+    if not queryRunning then
         return
     end
     awaitingAnswer = true
     local timeIsOut = false
     local function Timeout()
-        if not quizRunning then
+        if not queryRunning then
             return
         end
         task.wait(settings.questionTimeout)
         UpdateSignText(targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex])
-        SendMessageWhenReady("⏱ | Times up. The answer was: "..targetQuestion.rightAnswer..") "..targetQuestion.answers[targetQuestion.rightAnswerIndex], true)
+        SendMessageWhenReady("⏱ - Times up. The answer was: "..targetQuestion.rightAnswer..") "..targetQuestion.answers[targetQuestion.rightAnswerIndex], true)
         timeIsOut = true
         currentQuestion = nil
         questionAnsweredBy = nil
@@ -556,11 +556,11 @@ local function awaitAnswer(targetQuestion)
         coroutine.resume(signTimeCoroutine)
     end
 
-    if mode == "quiz" then
-        while questionAnsweredBy == nil and not timeIsOut and quizRunning do
+    if mode == "query" then
+        while questionAnsweredBy == nil and not timeIsOut and queryRunning do
             task.wait()
         end
-        if timeIsOut or not quizRunning then
+        if timeIsOut or not queryRunning then
             return
         end
         coroutine.close(timeoutCoroutine)
@@ -569,17 +569,17 @@ local function awaitAnswer(targetQuestion)
         task.delay(0.5, function() -- delayed to give time to the signtimecoroutine to stop chanong sign text
             UpdateSignText(targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex])
         end)
-        SendMessageWhenReady("🙀✔ | "..questionAnsweredBy.DisplayName.." answered RIGHT!. Answer was: "..targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex], true, "Answer was: "..targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex])
+        SendMessageWhenReady("🙀✔ - "..questionAnsweredBy.DisplayName.." answered RIGHT!. Answer was: "..targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex], true, "Answer was: "..targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex])
         questionAnsweredBy = nil
         awaitingAnswer = false
         table.clear(userCooldowns)
     else
-        while not timeIsOut and quizRunning do
+        while not timeIsOut and queryRunning do
             task.wait(1)
             questionPoints -= questionPoints / settings.questionTimeout
         end
         task.wait(2)
-        if not quizRunning then
+        if not queryRunning then
             return
         end
         if #answeredCorrectly > 0 then
@@ -589,7 +589,7 @@ local function awaitAnswer(targetQuestion)
             for _, user in pairs(answeredCorrectly) do
                 if currentLength + #user + (2 * #tempuserList) >= maxCharactersInMessage then -- maxCharactersInMessage is the limit for chat messages in Roblox. For each user, we are adding 2 more characters (, )
                     if firstIteration then
-                        SendMessageWhenReady("🎉 | Players who answered correctly: "..table.concat(tempuserList, ", "))
+                        SendMessageWhenReady("🎉 - Players who answered correctly: "..table.concat(tempuserList, ", "))
                         firstIteration = false
                     else
                         SendMessageWhenReady(table.concat(tempuserList, ", "))
@@ -605,7 +605,7 @@ local function awaitAnswer(targetQuestion)
             end
             if #tempuserList > 0 then
                 if firstIteration then
-                    SendMessageWhenReady("🎉 | Players who answered correctly: "..table.concat(tempuserList, ", "))
+                    SendMessageWhenReady("🎉 - Players who answered correctly: "..table.concat(tempuserList, ", "))
                     firstIteration = false
                 else
                     SendMessageWhenReady(table.concat(tempuserList, ", "))
@@ -963,8 +963,8 @@ end
 table.sort(categoryTable)
 
 local function sendCategories()
-    if not quizRunning then
-        Chat("❓ | Trivia/Kahoot categories:")
+    if not queryRunning then
+        Chat("❓ - Trivia/Kahoot categories:")
         task.wait(3)
         SplitIntoMessages(categoryTable, ", ", 5)
     end
@@ -991,14 +991,14 @@ local function sendLeaderboard(type, message)
     if not message then
         message = ""
     end
-    if type == "Current quiz" then
-        array = sortUserPoints("CurrentQuizPoints")
+    if type == "Current query" then
+        array = sortUserPoints("CurrentQueryPoints")
     else
         array = sortUserPoints("GlobalPoints")
     end
     task.wait(1.5)
     if array[1] and array[1][2] > 0 then
-        Chat(message..type.." Skibidi Sigmas |🏆")
+        Chat(message..type.." Skibidi Sigmas 🏆")
         local username = array[1][1]
         local displayName = getDisplayNameByUsername(username)
         local points = tostring(roundNumber(array[1][2], 1))
@@ -1035,71 +1035,71 @@ local function choseAutoplayCategory()
     end
 end
 
-local function startQuiz(category)
-    if quizRunning or quizCooldown then
+local function startQuery(category)
+    if queryRunning or queryCooldown then
         return
     end
-    quizRunning = true
-    pointManager.ClearQuizPoints()
-    Chat('🎮 | "'..category..'" quiz has been chosen. Initiating queries...')
+    queryRunning = true
+    pointManager.ClearQueryPoints()
+    Chat('🎮 - "'..category..'" query has been chosen. Initiating queries...')
     UpdateSignText(category)
     task.wait(3)
     local loopIterations = 0
     for _, v in pairs(categories[category]) do
-        if not quizRunning then
+        if not queryRunning then
             return
         end
         v:Ask()
         awaitAnswer(v)
-        if not quizRunning then
+        if not queryRunning then
             return
         end
         task.wait(6)
         loopIterations += 1
-        if not quizRunning then
+        if not queryRunning then
             return
         end
-        if loopIterations == settings.sendLeaderBoardAfterQuestions and settings.automaticLeaderboards and settings.automaticCurrentQuizLeaderboard then
-            sendLeaderboard("Current quiz", "📜 | ")
+        if loopIterations == settings.sendLeaderBoardAfterQuestions and settings.automaticLeaderboards and settings.automaticCurrentQueryLeaderboard then
+            sendLeaderboard("Current query", "📜 ")
             loopIterations = 0
         end
     end
     task.wait(3)
-    if loopIterations ~= 0 and settings.automaticLeaderboards and settings.automaticCurrentQuizLeaderboard then
-        sendLeaderboard("Current quiz", "📜 | ")
+    if loopIterations ~= 0 and settings.automaticLeaderboards and settings.automaticCurrentQueryLeaderboard then
+        sendLeaderboard("Current query", "📜 ")
     end
     UpdateSignText(endMessage)
     task.delay(15, function()
        UpdateSignText("")
     end)
-    if settings.automaticLeaderboards and settings.automaticServerQuizLeaderboard then
-        sendLeaderboard("Server", "🏆 | Questions ended. ")
+    if settings.automaticLeaderboards and settings.automaticServerQueryLeaderboard then
+        sendLeaderboard("Server", "🏆 Questions ended. ")
         task.wait(2)
     else
         SendMessageWhenReady("🏁 | Questions ended")
         task.wait(3)
     end
     UpdateSignText(endMessage)
-    quizRunning = false
+    queryRunning = false
     if settings.autoplay then
         table.insert(autoplayChosenCategories, category)
-        Chat("🎲💭 | Picking next category...")
+        Chat("🎲💭 - Picking next category...")
         local chosenCategory = choseAutoplayCategory()
         if #autoplayChosenCategories == #categoryTable then -- if every category has been chosen, clear the chosencategories table
             table.clear(autoplayChosenCategories)
         end
         task.wait(5)
-        startQuiz(chosenCategory)
+        startQuery(chosenCategory)
     end
 end
 
-local quizModeRules = {"There is only one winner for each questions.", "If you answer correctly, you will earn one point (or two points if the question is a double point question).", "If you answer incorrectly, you will have to wait "..tostring(settings.userCooldown).." seconds before you can submit another answer."}
+local queryModeRules = {"There is only one winner for each questions.", "If you answer correctly, you will earn one point (or two points if the question is a double point question).", "If you answer incorrectly, you will have to wait "..tostring(settings.userCooldown).." seconds before you can submit another answer."}
 local kahootModeRules = {"There are multiple winners for each question.", "You can only submit ONE answer per round.", "The first answer you submit is your final answer, and it can not be changed.", "You have "..tostring(settings.questionTimeout).." seconds to answer the question after all the options have been said.", "Every second after all the options have been said, the points you will gain for answering correctly decrease.", "In other words, the quicker you answer, the more points you will gain.", "Additionally, the first person who submits a correct answer gets 1.5x points."}
 local function sendRules()
-    if mode == "quiz" then
+    if mode == "query" then
         Chat("📢 | Query mode rules:")
         task.wait(2)
-        SplitIntoMessages(quizModeRules, " ")
+        SplitIntoMessages(queryModeRules, " ")
     elseif mode == "kahoot" then
         Chat("📢 | Multiple mode rules:")
         task.wait(2)
@@ -1168,7 +1168,7 @@ end
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttwizz/Roblox/master/Orion.lua", true))()
 
 local Window = OrionLib:MakeWindow({
-    Name = "Quiz Script",
+    Name = "Query Script",
     TestMode = true,
     SaveConfig = false,
     ConfigFolder = "OrionTest",
@@ -1226,10 +1226,10 @@ local function createMainGUI()
     })
 
     mainTab:AddButton({
-        Name = "Start quiz",
+        Name = "Start query",
         Callback = function()
             if categories[selectedCategory] then
-                startQuiz(selectedCategory)
+                startQuery(selectedCategory)
             end
         end
     })
@@ -1248,9 +1248,9 @@ local function createMainGUI()
     mainTab:AddButton({
         Name = "Stop",
         Callback = function()
-            quizCooldown, quizRunning, currentQuestion, questionAnsweredBy, awaitingAnswer = true, false, nil, nil, false
-            Chat("🛑 | Question Stopped.")
-            task.delay(5, function() quizCooldown = false end)
+            queryCooldown, queryRunning, currentQuestion, questionAnsweredBy, awaitingAnswer = true, false, nil, nil, false
+            Chat("🛑 - Question Stopped.")
+            task.delay(5, function() queryCooldown = false end)
         end
     })
 
@@ -1264,7 +1264,7 @@ local function createMainGUI()
     mainTab:AddButton({
         Name = "Send server LB",
         Callback = function()
-            sendLeaderboard("Server", "🏆| ")
+            sendLeaderboard("Server", "🏆 ")
         end
     })
 
@@ -1316,12 +1316,12 @@ local function createMainGUI()
                     for _, player in ipairs(game.Players:GetPlayers()) do
                         pointManager.AddPoints(player, pointsToAdd, "Global")
                     end
-                    Chat("➕ | "..pointsToAdd.." points have been added to everyone.")
+                    Chat("➕ - "..pointsToAdd.." points have been added to everyone.")
                 elseif targetPlayer then
                     pointManager.AddPoints(targetPlayer, pointsToAdd, "Global")
-                    Chat("➕ | "..targetPlayer.DisplayName.. "'s points have been increased by ".. pointsToAdd.. ".")
+                    Chat("➕ - "..targetPlayer.DisplayName.. "'s points have been increased by ".. pointsToAdd.. ".")
                 else
-                    Chat("❌ | Target player not found.")
+                    Chat("❌ - Target player not found.")
                 end
             end
         end
@@ -1336,12 +1336,12 @@ local function createMainGUI()
                     for _, player in ipairs(game.Players:GetPlayers()) do
                         pointManager.AddPoints(player, -pointsToAdd, "Global")
                     end
-                    Chat("➖ | "..pointsToAdd.." points have been decreased from everyone.")
+                    Chat("➖ - "..pointsToAdd.." points have been decreased from everyone.")
                 elseif targetPlayer then
                     pointManager.AddPoints(targetPlayer, -pointsToAdd, "Global")
-                    Chat("➖ | "..targetPlayer.DisplayName.. "'s points have been decreased by ".. pointsToAdd.. ".")
+                    Chat("➖ - "..targetPlayer.DisplayName.. "'s points have been decreased by ".. pointsToAdd.. ".")
                 else
-                    Chat("❌ | Target player not found.")
+                    Chat("❌ - Target player not found.")
                 end
             end
         end
@@ -1360,7 +1360,7 @@ local function createMainGUI()
                 pointManager.ClearGlobalPointsForPlayer(targetPlayer)
                 Chat(targetPlayer.DisplayName.. "'s points have been reset.")
             else
-                Chat("❌ | Target player not found.")
+                Chat("❌ - Target player not found.")
             end
         end
     })
@@ -1372,20 +1372,20 @@ local function createMainGUI()
 
     settingsTab:AddDropdown({
         Name = "Mode",
-        Default = "Quiz",
-        Options = {"Quiz", "Kahoot"},
+        Default = "Query",
+        Options = {"Query", "Kahoot"},
         Callback = function(mob)
             mode = mob:lower()
-            if mob == "Quiz" then
-                Chat("❓ | Query mode enabled - [Made by TXTm tag 1507]")
+            if mob == "Query" then
+                Chat("❓ - Query mode initialized.")
             elseif mob == "Kahoot" then
-                Chat("🅺❕ | Multiple mode enabled - [Made by TXTm tag 1507]")
+                Chat("🅺❕ - Multiple mode initialized.")
             end
         end
     })
 
     settingsTab:AddToggle({
-        Name = "Autoplay quizzes automatically",
+        Name = "Autoplay queryzes automatically",
         Default = false,
         Callback = function(value)
             settings.autoplay = value
@@ -1426,10 +1426,10 @@ local function createMainGUI()
     })
 
     settingsTab:AddToggle({
-        Name = "Disable automatic sending of server LB at the end of quiz",
+        Name = "Disable automatic sending of server LB at the end of query",
         Default = false,
         Callback = function(value)
-            settings.automaticServerQuizLeaderboard = not value
+            settings.automaticServerQueryLeaderboard = not value
         end
     })
 
