@@ -435,7 +435,7 @@ local function startChatListening(message: string, player: Player)
             task.delay(settings.userCooldown, function()
                 table.remove(userCooldowns, table.find(userCooldowns, player.Name))
             end)
-        elseif mode == "kahoot" then
+        elseif mode == "multiple" then
             table.insert(submittedAnswer, player.Name)
         end
     end
@@ -964,7 +964,7 @@ table.sort(categoryTable)
 
 local function sendCategories()
     if not queryRunning then
-        Chat("❓ - Trivia/Kahoot categories:")
+        Chat("❓ - Trivia/multiple categories:")
         task.wait(3)
         SplitIntoMessages(categoryTable, ", ", 5)
     end
@@ -1094,16 +1094,16 @@ local function startQuery(category)
 end
 
 local queryModeRules = {"There is only one winner for each questions.", "If you answer correctly, you will earn one point (or two points if the question is a double point question).", "If you answer incorrectly, you will have to wait "..tostring(settings.userCooldown).." seconds before you can submit another answer."}
-local kahootModeRules = {"There are multiple winners for each question.", "You can only submit ONE answer per round.", "The first answer you submit is your final answer, and it can not be changed.", "You have "..tostring(settings.questionTimeout).." seconds to answer the question after all the options have been said.", "Every second after all the options have been said, the points you will gain for answering correctly decrease.", "In other words, the quicker you answer, the more points you will gain.", "Additionally, the first person who submits a correct answer gets 1.5x points."}
+local multipleModeRules = {"There are multiple winners for each question.", "You can only submit ONE answer per round.", "The first answer you submit is your final answer, and it can not be changed.", "You have "..tostring(settings.questionTimeout).." seconds to answer the question after all the options have been said.", "Every second after all the options have been said, the points you will gain for answering correctly decrease.", "In other words, the quicker you answer, the more points you will gain.", "Additionally, the first person who submits a correct answer gets 1.5x points."}
 local function sendRules()
     if mode == "query" then
         Chat("📢 | Query mode rules:")
         task.wait(2)
         SplitIntoMessages(queryModeRules, " ")
-    elseif mode == "kahoot" then
+    elseif mode == "multiple" then
         Chat("📢 | Multiple mode rules:")
         task.wait(2)
-        SplitIntoMessages(kahootModeRules, " ")
+        SplitIntoMessages(multipleModeRules, " ")
     end
 end
 
@@ -1168,12 +1168,12 @@ end
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttwizz/Roblox/master/Orion.lua", true))()
 
 local Window = OrionLib:MakeWindow({
-    Name = "Query Script",
+    Name = "Nerdy ahh script",
     TestMode = true,
     SaveConfig = false,
     ConfigFolder = "OrionTest",
     IntroEnabled = true,
-    IntroText = "Welcome My Nigga!",
+    IntroText = "Wassup My Nigga!",
     Icon = "rbxassetid://12345678", -- Optional: replace with your icon
 })
 
@@ -1249,7 +1249,7 @@ local function createMainGUI()
         Name = "Stop",
         Callback = function()
             queryCooldown, queryRunning, currentQuestion, questionAnsweredBy, awaitingAnswer = true, false, nil, nil, false
-            Chat("🛑 - Question Stopped.")
+            Chat("🛑 - Query Stopped.")
             task.delay(5, function() queryCooldown = false end)
         end
     })
@@ -1373,19 +1373,19 @@ local function createMainGUI()
     settingsTab:AddDropdown({
         Name = "Mode",
         Default = "Query",
-        Options = {"Query", "Kahoot"},
+        Options = {"Query", "multiple"},
         Callback = function(mob)
             mode = mob:lower()
             if mob == "Query" then
                 Chat("❓ - Query mode initialized.")
-            elseif mob == "Kahoot" then
+            elseif mob == "multiple" then
                 Chat("🅺❕ - Multiple mode initialized.")
             end
         end
     })
 
     settingsTab:AddToggle({
-        Name = "Autoplay queryzes automatically",
+        Name = "Autopick category",
         Default = false,
         Callback = function(value)
             settings.autoplay = value
@@ -1393,7 +1393,7 @@ local function createMainGUI()
     })
 
     settingsTab:AddTextbox({
-        Name = "Question timeout",
+        Name = "Queries cooldown",
         Default = "13",
         TextDisappear = true,
         Callback = function(value)
@@ -1404,7 +1404,7 @@ local function createMainGUI()
     })
 
     settingsTab:AddTextbox({
-        Name = "User cooldown on wrong answer",
+        Name = "Wrong answer cooldown",
         Default = "3",
         TextDisappear = true,
         Callback = function(value)
@@ -1415,7 +1415,7 @@ local function createMainGUI()
     })
 
     settingsTab:AddTextbox({
-        Name = "Automatically send leaderboard after questions",
+        Name = "Autosend skibidi leaderboard when queries end",
         Default = "3",
         TextDisappear = true,
         Callback = function(value)
@@ -1426,7 +1426,7 @@ local function createMainGUI()
     })
 
     settingsTab:AddToggle({
-        Name = "Disable automatic sending of server LB at the end of query",
+        Name = "Disable autosend skibidi leaderboard",
         Default = false,
         Callback = function(value)
             settings.automaticServerQueryLeaderboard = not value
@@ -1434,7 +1434,7 @@ local function createMainGUI()
     })
 
     settingsTab:AddToggle({
-        Name = "Do not repeat tagged messages",
+        Name = "Disable autorepeat tagged message",
         Default = false,
         Callback = function(value)
             if not oldChat then
@@ -1463,20 +1463,6 @@ local function createMainGUI()
     local destroyTab = Window:MakeTab({
         Name = "Destroy GUI",
         Icon = "rbxassetid://4483345998",
-    })
-
-    destroyTab:AddButton({
-        Name = "Disable connections",
-        Callback = function()
-            if oldChat then
-                for _, connection in playerChatConnections do
-                    joinConnection:Disconnect()
-                    connection:Disconnect()
-                end
-            else
-                chatConnection:Disconnect()
-            end
-        end
     })
 
     destroyTab:AddButton({
