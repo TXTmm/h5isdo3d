@@ -1241,45 +1241,6 @@ local function createMainGUI()
         Chat("All points reset.")
     end)
 
-    b:Button("Send Categories", function()
-    local categoryList = {}
-    for categoryName, _ in pairs(categories) do
-        table.insert(categoryList, categoryName)
-    end
-
-    local msg1, msg2, msg3 = "📋 | Categories: ", "", ""
-    local limit = math.ceil(#categoryList / 3)
-    for i = 1, limit do
-        msg1 = msg1 .. categoryList[i] .. ", "
-    end
-    for i = limit + 1, limit * 2 do
-        msg2 = msg2 .. categoryList[i] .. ", "
-    end
-    for i = limit * 2 + 1, #categoryList do
-        msg3 = msg3 .. categoryList[i] .. ", "
-    end
-
-    -- Remove the last comma and space
-    if msg1 ~= "" then
-        msg1 = msg1:sub(1, -3)
-        Chat(msg1)
-    end
-
-    task.wait(1.5)
-
-    if msg2 ~= "" then
-        msg2 = msg2:sub(1, -3)
-        Chat(msg2)
-    end
-
-    task.wait(1.5)
-
-    if msg3 ~= "" then
-        msg3 = msg3:sub(1, -3)
-        Chat(msg3)
-    end
-end)
-
     local c = w:CreateFolder("Points System")
     local targetPlayer
 
