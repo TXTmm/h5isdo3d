@@ -1503,10 +1503,14 @@ keyTab:AddTextbox({
             authenticated = true
             createMainGUI()
         else
-            Chat("❌ | Incorrect key.")
+            OrionLib:MakeNotification({
+                Name = "Authentication Error",
+                Content = "The key you entered is incorrect.",
+                Image = "rbxassetid://4483345998",
+                Time = 5
+            })
         end
     end
 })
 
--- Finish the script
 OrionLib:Init()
