@@ -1168,7 +1168,7 @@ end
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttwizz/Roblox/master/Orion.lua", true))()
 
 local Window = OrionLib:MakeWindow({
-    Name = "Nerdy ahh script",
+    Name = "Goofy ahh quiz script (i love yapping)",
     TestMode = true,
     SaveConfig = false,
     ConfigFolder = "OrionTest",
