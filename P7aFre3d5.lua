@@ -876,7 +876,7 @@ local mathHard = categoryManager.New("Math-hard")
 mathHard:Add("What is the name of the theorem that relates the sides and angles of a triangle, stating that (a/sin(A)) = (b/sin(B)) = (c/sin(C))?", {"Law of Sines", "Law of Cosines", "Pythagorean theorem", "Triangle Inequality Theorem"})
 mathHard:Add("What is the derivative of ln(x)?", {"1/x", "x", "ln(x)", "e^x"})
 mathHard:Add("What is the value of the square root of 64?", {"8", "6", "4", "10"})
-mathHard:Add("What is the name of the sequence that starts with 1, 4, 9, 16, 25, ...?", {"Square Numbers", "Fibonacci Sequence", "Prime Numbers", "Cube Numbers"})
+mathHard:Add("What is the value of the Riemann zeta function at s=2?", {"π^2/6", "π^3/6", "π^2/8", "π^3/8"})
 mathHard:Add("What is the name of the branch of mathematics that deals with the study of continuous change and motion?", {"Calculus", "Algebra", "Geometry", "Number Theory"}, 2)
 
 local coldWar = categoryManager.New("Cold War")
