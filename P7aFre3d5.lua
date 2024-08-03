@@ -220,7 +220,7 @@ function question:Ask()
         if questionAnsweredBy or not queryRunning then
             return
         end
-        SendMessageWhenReady(letters[i]..") "..v, true) -- 1 = A) 2 = B) 3 = C) etc.
+        SendMessageWhenReady(letters[i]..". "..v, true) -- 1 = A) 2 = B) 3 = C) etc.
         answerOptionsSaid = i
     end
 end
@@ -530,7 +530,7 @@ local function awaitAnswer(targetQuestion)
         end
         task.wait(settings.questionTimeout)
         UpdateSignText(targetQuestion.rightAnswer..")"..targetQuestion.answers[targetQuestion.rightAnswerIndex])
-        SendMessageWhenReady("⏱ - Times up. The answer was: "..targetQuestion.rightAnswer..") "..targetQuestion.answers[targetQuestion.rightAnswerIndex], true)
+        SendMessageWhenReady("⏱ - Times up. The answer was: "..targetQuestion.rightAnswer..". "..targetQuestion.answers[targetQuestion.rightAnswerIndex], true)
         timeIsOut = true
         currentQuestion = nil
         questionAnsweredBy = nil
