@@ -1165,7 +1165,7 @@ local function getCategoryName(name) -- detects category from begging of string,
     end
 end
 ---------- UI ----------
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/ttwizz/Roblox/master/Orion.lua", true))()
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
 local Window = OrionLib:MakeWindow({
     Name = "Goofy ahh quiz script (i love yapping)",
@@ -1173,7 +1173,7 @@ local Window = OrionLib:MakeWindow({
     SaveConfig = false,
     ConfigFolder = "OrionTest",
     IntroEnabled = true,
-    IntroText = "Wassup My Nigga!",
+    IntroText = "Sup negro",
     Icon = "rbxassetid://12345678", -- Optional: replace with your icon
 })
 
